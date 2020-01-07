@@ -73,20 +73,6 @@ func _process(delta: float) -> void:
 			var body_tile_up = _snake_tiles[i-1]
 			body_tile.pos = body_tile_up.pos
 			body_tile.dir = body_tile_up.dir
-		# Update tiles (straight and curves)
-		for i in range(0, _length -1):   # Does not take tail into consideration
-			var body_tile = _snake_tiles[i]
-			var body_tile_up = _snake_tiles[i-1]
-			
-			# Straight
-			var cell_index = body + body_tile.dir
-			set_cell(body_tile.pos.x, body_tile.pos.y, cell_index)
-			
-			#TODO: add curves
-		
-		# Tail
-		var tail_object = _snake_tiles[_length-1]
-		set_cell(tail_object.pos.x, tail_object.pos.y, tail + _snake_tiles[_length-2].dir)
 		
 		# Head
 		_snake_tiles[0].pos += dir_int_to_vec(_input)
@@ -97,6 +83,36 @@ func _process(delta: float) -> void:
 			if snake_tile.pos == _snake_tiles[0].pos:
 				print("DEAD, game over")
 		set_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y, head + input)
+		
+		# Update body-tiles (straight and curves)
+		for i in range(1, _length-1):   # Does not take tail into consideration
+			var body_tile = _snake_tiles[i]
+			var body_tile_up = _snake_tiles[i-1]
+			
+			# Straight
+			var cell_index = body + body_tile.dir
+			
+			# Curves
+			#if body_tile.dir == up && body_tile_up.dir == right || body_tile.dir == left && body_tile_up.dir == down:
+			#	cell_index = curves + 0
+			if _check_curve(body_tile, body_tile_up, up, right, left, down):
+				cell_index = curves + 0
+			if _check_curve(body_tile, body_tile_up, right, down, up, left):
+				cell_index = curves + 1
+			if _check_curve(body_tile, body_tile_up, down, right, left, up):
+				cell_index = curves + 2
+			if _check_curve(body_tile, body_tile_up, right, up, down, left):
+				cell_index = curves +3
+			
+			set_cell(body_tile.pos.x, body_tile.pos.y, cell_index)
+		
+		# Tail
+		var tail_object = _snake_tiles[_length-1]
+		set_cell(tail_object.pos.x, tail_object.pos.y, tail + _snake_tiles[_length-2].dir)
+
+
+func _check_curve(tile:SnakeTile, tile_up:SnakeTile, dir1:int, dir2:int, dir3:int, dir4:int) -> bool:
+	return tile.dir == dir1 && tile_up.dir == dir2 || tile.dir == dir3 && tile_up.dir == dir4
 
 
 func dir_vec_to_int(v:Vector2) -> int:
