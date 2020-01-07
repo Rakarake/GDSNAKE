@@ -1,19 +1,22 @@
 extends TileMap
 
-enum { up, down, left, right }
+enum { up = 0, down = 1, left = 2, right = 3 }
+enum { head = 0, body = 4, curves = 8, tail = 12}
 
 # Public
 
 export var max_length := 256
-export var start_length := 3
+export var start_length := 6
 export var start_pos := Vector2(8, 8)
+export var start_dir := right
 
 export var tick_interval := 0.5   # In seconds, instead of speed
 
-var _input := Vector2(0, 1)   # Starting direction: right
+var _input := start_dir
 var _tick_time := 0.0
-var _snake_tiles := []
 var _length := 3
+
+var _snake_tiles := []
 
 
 # General idea:
@@ -24,55 +27,97 @@ var _length := 3
 
 func _ready():
 	_length = start_length
-	_snake_tiles.resize(max_length)
+	_snake_tiles.resize(start_length)
 	
 	#TEST
-	print("YES")
 	var list := [1, 2, 3, 4, 5]
 	for i in range(4, 1, -1):
 		var element = list[i]
 		print(element)
 	
 	var temp_pos :Vector2 = start_pos
-	for i in range(0, start_length + 1):   # +1: the erasing tile
+	for i in range(0, start_length):
 		_snake_tiles[i] = SnakeTile.new()
 		_snake_tiles[i].pos = temp_pos
-		_snake_tiles[i].dir = Vector2(1, 0)
-		temp_pos.x -= 1
+		_snake_tiles[i].dir = start_dir
+		temp_pos -= dir_int_to_vec(start_dir)
 
 
 func _process(delta: float) -> void:
 	_tick_time += delta
 	
 	# Current input
+	var expected_input
 	if Input.is_action_just_pressed("move_up"):
-		_input = Vector2(0, -1)
+		expected_input = up
 	if Input.is_action_just_pressed("move_down"):
-		_input = Vector2(0, 1)
+		expected_input = down
 	if Input.is_action_just_pressed("move_left"):
-		_input = Vector2(-1, 0)
+		expected_input = left
 	if Input.is_action_just_pressed("move_right"):
-		_input = Vector2(1, 0)
+		expected_input = right
+	if expected_input != null:
+		_input = expected_input
 	
 	if _tick_time >= tick_interval:
 		# Tick
 		_tick_time -= tick_interval     # Resets _tick_time, if tick_interval is long: _tick_time will hop back to 0
 		
 		# Empty tile
-		var empty = _snake_tiles[_length - 1]
-		set_cell(empty.pos.x, empty.pos.y, -1)
+		set_cell(_snake_tiles[_length-1].pos.x, _snake_tiles[_length-1].pos.y, -1)
 		
 		# Body
+		# Update positions and directions
 		for i in range(_length - 1, 0, -1):   # The offsets are a little weird when iterating backwards
-			if _snake_tiles[i] == null:
-				print("element ", i, " in _snake_tiles is null")
-				break
-			_snake_tiles[i].pos = _snake_tiles[i-1].pos
-			_snake_tiles[i].dir = _snake_tiles[i-1].dir
-			set_cell(_snake_tiles[i].pos.x, _snake_tiles[i].pos.y, 0)
-			print("this is: ", i)
+			var body_tile = _snake_tiles[i]
+			var body_tile_up = _snake_tiles[i-1]
+			body_tile.pos = body_tile_up.pos
+			body_tile.dir = body_tile_up.dir
+		# Update tiles (straight and curves)
+		for i in range(0, _length -1):   # Does not take tail into consideration
+			var body_tile = _snake_tiles[i]
+			var body_tile_up = _snake_tiles[i-1]
+			
+			# Straight
+			var cell_index = body + body_tile.dir
+			set_cell(body_tile.pos.x, body_tile.pos.y, cell_index)
+			
+			#TODO: add curves
+		
+		# Tail
+		var tail_object = _snake_tiles[_length-1]
+		set_cell(tail_object.pos.x, tail_object.pos.y, tail + _snake_tiles[_length-2].dir)
 		
 		# Head
-		_snake_tiles[0].pos += _input
-		set_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y, 5)
-		
+		_snake_tiles[0].pos += dir_int_to_vec(_input)
+		var input = _input
+		_snake_tiles[0].dir = input
+		for i in range(1, _length):
+			var snake_tile = _snake_tiles[i]
+			if snake_tile.pos == _snake_tiles[0].pos:
+				print("DEAD, game over")
+		set_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y, head + input)
+
+
+func dir_vec_to_int(v:Vector2) -> int:
+	if v.y == -1:
+		return 0
+	if v.y == 1:
+		return 1
+	if v.x == -1:
+		return 2
+	return 3
+
+func dir_int_to_vec(i:int) -> Vector2:
+	var dir
+	if i == 0:
+		return Vector2(0, -1)
+	if i == 1:
+		return Vector2(0, 1)
+	if i == 2:
+		return Vector2(-1, 0)
+	return Vector2(1, 0)
+
+#func _elongate():
+#	_snake_tiles.append(SnakeTile.new())
+#	pass
