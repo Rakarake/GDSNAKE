@@ -3,14 +3,21 @@ extends TileMap
 enum { up = 0, down = 1, left = 2, right = 3 }
 enum { head = 0, body = 4, curves = 8, tail = 12}
 
+# References
+
+onready var _walls :TileMap = $Walls
+
 # Public
+
+export var tick_interval := 0.5   # In seconds, instead of speed
 
 export var max_length := 256
 export var start_length := 6
 export var start_pos := Vector2(8, 8)
 export var start_dir := right
 
-export var tick_interval := 0.5   # In seconds, instead of speed
+var _wall_check_top_left := Vector2(0, 0)
+var _wall_check_bottom_right := Vector2(32, 32)
 
 var _input := start_dir
 var _tick_time := 0.0
@@ -34,6 +41,8 @@ func _ready():
 	for i in range(4, 1, -1):
 		var element = list[i]
 		print(element)
+		
+	
 	
 	var temp_pos :Vector2 = start_pos
 	for i in range(0, start_length):
@@ -64,7 +73,7 @@ func _process(delta: float) -> void:
 		_tick_time -= tick_interval     # Resets _tick_time, if tick_interval is long: _tick_time will hop back to 0
 		
 		# Empty tile
-		set_cell(_snake_tiles[_length-1].pos.x, _snake_tiles[_length-1].pos.y, -1)
+		set_cell(_snake_tiles[_length-1].pos.x, _snake_tiles[_length-1].pos.y, INVALID_CELL)   # Invalid cell is just -1
 		
 		# Body
 		# Update positions and directions
@@ -82,9 +91,10 @@ func _process(delta: float) -> void:
 			var snake_tile = _snake_tiles[i]
 			if snake_tile.pos == _snake_tiles[0].pos:
 				print("DEAD, game over")
+		
 		set_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y, head + input)
 		
-		# Update body-tiles (straight and curves)
+		# Update body-tiles
 		for i in range(1, _length-1):   # Does not take tail into consideration
 			var body_tile = _snake_tiles[i]
 			var body_tile_up = _snake_tiles[i-1]
@@ -93,8 +103,6 @@ func _process(delta: float) -> void:
 			var cell_index = body + body_tile.dir
 			
 			# Curves
-			#if body_tile.dir == up && body_tile_up.dir == right || body_tile.dir == left && body_tile_up.dir == down:
-			#	cell_index = curves + 0
 			if _check_curve(body_tile, body_tile_up, up, right, left, down):
 				cell_index = curves + 0
 			if _check_curve(body_tile, body_tile_up, right, down, up, left):
@@ -102,18 +110,21 @@ func _process(delta: float) -> void:
 			if _check_curve(body_tile, body_tile_up, down, right, left, up):
 				cell_index = curves + 2
 			if _check_curve(body_tile, body_tile_up, right, up, down, left):
-				cell_index = curves +3
+				cell_index = curves + 3
 			
 			set_cell(body_tile.pos.x, body_tile.pos.y, cell_index)
 		
 		# Tail
 		var tail_object = _snake_tiles[_length-1]
 		set_cell(tail_object.pos.x, tail_object.pos.y, tail + _snake_tiles[_length-2].dir)
+		
+		# Check walls
+		if _walls.get_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y) != INVALID_CELL:
+			print("WALL TILE!")
 
 
 func _check_curve(tile:SnakeTile, tile_up:SnakeTile, dir1:int, dir2:int, dir3:int, dir4:int) -> bool:
 	return tile.dir == dir1 && tile_up.dir == dir2 || tile.dir == dir3 && tile_up.dir == dir4
-
 
 func dir_vec_to_int(v:Vector2) -> int:
 	if v.y == -1:
