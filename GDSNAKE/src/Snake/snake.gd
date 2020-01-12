@@ -126,6 +126,7 @@ func _process(delta: float) -> void:
 func _check_curve(tile:SnakeTile, tile_up:SnakeTile, dir1:int, dir2:int, dir3:int, dir4:int) -> bool:
 	return tile.dir == dir1 && tile_up.dir == dir2 || tile.dir == dir3 && tile_up.dir == dir4
 
+
 func dir_vec_to_int(v:Vector2) -> int:
 	if v.y == -1:
 		return 0
@@ -145,6 +146,10 @@ func dir_int_to_vec(i:int) -> Vector2:
 		return Vector2(-1, 0)
 	return Vector2(1, 0)
 
-#func _elongate():
-#	_snake_tiles.append(SnakeTile.new())
-#	pass
+
+func _elongate() -> void:
+	_snake_tiles.append(SnakeTile.new())
+	_length += 1
+
+func die() -> void:
+	pass
