@@ -90,7 +90,8 @@ func _process(delta: float) -> void:
 		for i in range(1, _length):
 			var snake_tile = _snake_tiles[i]
 			if snake_tile.pos == _snake_tiles[0].pos:
-				print("DEAD, game over")
+				print("Snake hit itself")
+				die()
 		
 		set_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y, head + input)
 		
@@ -120,7 +121,8 @@ func _process(delta: float) -> void:
 		
 		# Check walls
 		if _walls.get_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y) != INVALID_CELL:
-			print("WALL TILE!")
+			print("Snake touched a wall tile")
+			die()
 
 
 func _check_curve(tile:SnakeTile, tile_up:SnakeTile, dir1:int, dir2:int, dir3:int, dir4:int) -> bool:
