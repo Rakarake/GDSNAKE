@@ -3,6 +3,8 @@ extends TileMap
 enum { up = 0, down = 1, left = 2, right = 3 }
 enum { head = 0, body = 4, curves = 8, tail = 12}
 
+signal elongate()
+
 # References
 
 onready var _walls :TileMap = $Walls
@@ -15,9 +17,6 @@ export var max_length := 256
 export var start_length := 6
 export var start_pos := Vector2(8, 8)
 export var start_dir := right
-
-var _wall_check_top_left := Vector2(0, 0)
-var _wall_check_bottom_right := Vector2(32, 32)
 
 var _input := start_dir
 var _tick_time := 0.0
@@ -41,7 +40,7 @@ func _ready():
 	for i in range(4, 1, -1):
 		var element = list[i]
 		print(element)
-		
+	
 	
 	
 	var temp_pos :Vector2 = start_pos
@@ -149,9 +148,12 @@ func dir_int_to_vec(i:int) -> Vector2:
 	return Vector2(1, 0)
 
 
-func _elongate() -> void:
+func elongate():
 	_snake_tiles.append(SnakeTile.new())
 	_length += 1
+	emit_signal("elongate")
+	
 
-func die() -> void:
+func die():
+	
 	pass
