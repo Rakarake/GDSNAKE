@@ -49,6 +49,8 @@ func _on_game_start() -> void:
 
 func initialize() -> void:
 	_length = start_length
+	_input = start_dir
+	_previous_input = start_dir
 	_snake_tiles.resize(start_length)
 	set_process(true)
 	show()
