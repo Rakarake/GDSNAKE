@@ -26,6 +26,7 @@ const FRUIT_BOUNDS_BOTTOMRIGHT := Vector2(16, 16)
 
 
 var _input := start_dir
+var _previous_input := start_dir
 var _tick_time := 0.0
 var _length := 3
 
@@ -38,17 +39,25 @@ var _snake_tiles := []
 #	
 
 
-func _ready():
+func _ready() -> void:
+	global.connect("game_start", self, "_on_game_start")
+	set_process(false)
+
+func _on_game_start() -> void:
+	print("received signal set_state_playing")
+	initialize()
+
+func initialize() -> void:
 	_length = start_length
 	_snake_tiles.resize(start_length)
+	set_process(true)
+	show()
 	
 	#TEST
 	var list := [1, 2, 3, 4, 5]
 	for i in range(4, 1, -1):
 		var element = list[i]
 		print(element)
-	
-	
 	
 	var temp_pos :Vector2 = start_pos
 	for i in range(0, start_length):
@@ -61,18 +70,18 @@ func _ready():
 	_fruit.set_cell(FRUIT_START_POS.x, FRUIT_START_POS.y, 0)
 
 
-func _process(delta: float):
+func _process(delta: float) -> void:
 	_tick_time += delta
 	
 	# Current input
 	var expected_input
-	if Input.is_action_just_pressed("move_up") && _input != down:
+	if Input.is_action_just_pressed("move_up"):
 		expected_input = up
-	if Input.is_action_just_pressed("move_down") && _input != up:
+	if Input.is_action_just_pressed("move_down"):
 		expected_input = down
-	if Input.is_action_just_pressed("move_left") && _input != right:
+	if Input.is_action_just_pressed("move_left"):
 		expected_input = left
-	if Input.is_action_just_pressed("move_right") && _input != left:
+	if Input.is_action_just_pressed("move_right"):
 		expected_input = right
 	if expected_input != null:
 		_input = expected_input
@@ -80,6 +89,22 @@ func _process(delta: float):
 	if _tick_time >= tick_interval:
 		# Tick
 		_tick_time -= tick_interval     # Resets _tick_time, if tick_interval is long: _tick_time will hop back to 0
+		
+		# Input handeling
+		var same_dir = false
+		if _input == up and _previous_input == down:
+			same_dir = true
+		if _input == down and _previous_input == up:
+			same_dir = true
+		if _input == left and _previous_input == right:
+			same_dir = true
+		if _input == right and _previous_input == left:
+			same_dir = true
+		
+		if same_dir:
+			_input = _previous_input
+		else:
+			_previous_input = _input
 		
 		# Empty tile
 		set_cell(_snake_tiles[_length-1].pos.x, _snake_tiles[_length-1].pos.y, INVALID_CELL)   # Invalid cell is just -1
@@ -163,7 +188,7 @@ func dir_int_to_vec(i:int) -> Vector2:
 	return Vector2(1, 0)
 
 
-func elongate():
+func elongate() -> void:
 	print("elongated")
 	_snake_tiles.append(SnakeTile.new())
 	_length += 1
@@ -175,6 +200,8 @@ func elongate():
 	_fruit.set_cell(fruit_pos.x, fruit_pos.y, 0)
 
 
-func die():
-	
-	pass
+func die() -> void:
+	print("you died")
+	hide()
+	set_process(false)
+	global.set_state_game_over()

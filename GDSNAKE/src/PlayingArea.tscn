@@ -44,9 +44,7 @@ format = 1
 position = Vector2( 243, 89 )
 texture = ExtResource( 4 )
 
-[node name="HUD" type="Node" parent="."]
-
-[node name="RichTextLabel" type="RichTextLabel" parent="HUD"]
+[node name="GameOverText" type="RichTextLabel" parent="."]
 margin_left = 110.0
 margin_top = 78.0
 margin_right = 216.0
