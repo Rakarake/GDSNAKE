@@ -1,11 +1,10 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://src/Snake/snake_grid.tres" type="TileSet" id=1]
 [ext_resource path="res://src/Snake/snake.gd" type="Script" id=2]
 [ext_resource path="res://src/Snake/walls.tres" type="TileSet" id=3]
 [ext_resource path="res://assets/Snake.png" type="Texture" id=4]
-[ext_resource path="res://src/Snake/fruit.gd" type="Script" id=5]
-[ext_resource path="res://src/saturno.ttf" type="DynamicFontData" id=6]
+[ext_resource path="res://src/saturno.ttf" type="DynamicFontData" id=5]
 
 [sub_resource type="TileSet" id=1]
 0/name = "Snake.png 0"
@@ -20,7 +19,7 @@
 0/z_index = 0
 
 [sub_resource type="DynamicFont" id=2]
-font_data = ExtResource( 6 )
+font_data = ExtResource( 5 )
 
 [node name="PlayingArea" type="Node2D"]
 
@@ -40,7 +39,6 @@ tile_data = PoolIntArray( 65569, 1, 0, 65570, 1, 0, 65571, 1, 0, 65572, 1, 0, 65
 tile_set = SubResource( 1 )
 cell_size = Vector2( 8, 8 )
 format = 1
-script = ExtResource( 5 )
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 243, 89 )

@@ -3,11 +3,10 @@ extends TileMap
 enum { up = 0, down = 1, left = 2, right = 3 }
 enum { head = 0, body = 4, curves = 8, tail = 12}
 
-signal elongate()
-
 # References
 
 onready var _walls :TileMap = $Walls
+onready var _fruit :TileMap = $Fruit
 
 # Public
 
@@ -17,6 +16,14 @@ export var max_length := 256
 export var start_length := 6
 export var start_pos := Vector2(8, 8)
 export var start_dir := right
+
+# Fruit
+const FRUIT_START_POS := Vector2(12, 12)
+var fruit_pos := FRUIT_START_POS
+var furit_rng := RandomNumberGenerator.new()
+const FRUIT_BOUNDS_TOPLEFT := Vector2(0, 0)
+const FRUIT_BOUNDS_BOTTOMRIGHT := Vector2(16, 16)
+
 
 var _input := start_dir
 var _tick_time := 0.0
@@ -49,20 +56,23 @@ func _ready():
 		_snake_tiles[i].pos = temp_pos
 		_snake_tiles[i].dir = start_dir
 		temp_pos -= dir_int_to_vec(start_dir)
+	
+	# Fruit
+	_fruit.set_cell(FRUIT_START_POS.x, FRUIT_START_POS.y, 0)
 
 
-func _process(delta: float) -> void:
+func _process(delta: float):
 	_tick_time += delta
 	
 	# Current input
 	var expected_input
-	if Input.is_action_just_pressed("move_up"):
+	if Input.is_action_just_pressed("move_up") && _input != down:
 		expected_input = up
-	if Input.is_action_just_pressed("move_down"):
+	if Input.is_action_just_pressed("move_down") && _input != up:
 		expected_input = down
-	if Input.is_action_just_pressed("move_left"):
+	if Input.is_action_just_pressed("move_left") && _input != right:
 		expected_input = left
-	if Input.is_action_just_pressed("move_right"):
+	if Input.is_action_just_pressed("move_right") && _input != left:
 		expected_input = right
 	if expected_input != null:
 		_input = expected_input
@@ -122,6 +132,10 @@ func _process(delta: float) -> void:
 		if _walls.get_cell(_snake_tiles[0].pos.x, _snake_tiles[0].pos.y) != INVALID_CELL:
 			print("Snake touched a wall tile")
 			die()
+		
+		# Check fruit
+		if _snake_tiles[0].pos == fruit_pos:
+			elongate()
 
 
 func _check_curve(tile:SnakeTile, tile_up:SnakeTile, dir1:int, dir2:int, dir3:int, dir4:int) -> bool:
@@ -137,6 +151,7 @@ func dir_vec_to_int(v:Vector2) -> int:
 		return 2
 	return 3
 
+
 func dir_int_to_vec(i:int) -> Vector2:
 	var dir
 	if i == 0:
@@ -149,10 +164,16 @@ func dir_int_to_vec(i:int) -> Vector2:
 
 
 func elongate():
+	print("elongated")
 	_snake_tiles.append(SnakeTile.new())
 	_length += 1
-	emit_signal("elongate")
 	
+	# Change fruit position, dependent on FRUIT_BOUNDS
+	_fruit.set_cell(fruit_pos.x, fruit_pos.y, INVALID_CELL)
+	fruit_pos.x = furit_rng.randi_range(FRUIT_BOUNDS_TOPLEFT.x, FRUIT_BOUNDS_BOTTOMRIGHT.x)
+	fruit_pos.y = furit_rng.randi_range(FRUIT_BOUNDS_TOPLEFT.y, FRUIT_BOUNDS_BOTTOMRIGHT.y)
+	_fruit.set_cell(fruit_pos.x, fruit_pos.y, 0)
+
 
 func die():
 	
