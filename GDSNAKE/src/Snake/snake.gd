@@ -10,19 +10,19 @@ onready var _fruit :TileMap = $Fruit
 
 # Public
 
-export var tick_interval := 0.5   # In seconds, instead of speed
+export var tick_interval := 0.3   # In seconds, instead of speed
 
 export var max_length := 256
-export var start_length := 6
-export var start_pos := Vector2(8, 8)
+export var start_length := 3
+export var start_pos := Vector2(10, 15)
 export var start_dir := right
 
 # Fruit
 const FRUIT_START_POS := Vector2(12, 12)
 var fruit_pos := FRUIT_START_POS
 var furit_rng := RandomNumberGenerator.new()
-const FRUIT_BOUNDS_TOPLEFT := Vector2(0, 0)
-const FRUIT_BOUNDS_BOTTOMRIGHT := Vector2(16, 16)
+const FRUIT_BOUNDS_TOPLEFT := Vector2(9, 9)
+const FRUIT_BOUNDS_BOTTOMRIGHT := Vector2(25, 25)
 
 
 var _input := start_dir
@@ -48,6 +48,12 @@ func _on_game_start() -> void:
 	initialize()
 
 func initialize() -> void:
+	clear()   # Clear the snake tilemap
+	_fruit.clear()   # Clear the fruit tilemap
+	
+	# Show the title
+	
+	
 	_length = start_length
 	_input = start_dir
 	_previous_input = start_dir
@@ -69,6 +75,7 @@ func initialize() -> void:
 		temp_pos -= dir_int_to_vec(start_dir)
 	
 	# Fruit
+	fruit_pos = FRUIT_START_POS
 	_fruit.set_cell(FRUIT_START_POS.x, FRUIT_START_POS.y, 0)
 
 
