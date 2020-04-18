@@ -84,13 +84,13 @@ func _process(delta: float) -> void:
 	
 	# Current input
 	var expected_input
-	if Input.is_action_just_pressed("move_up"):
+	if Input.is_action_pressed("move_up"):
 		expected_input = up
-	if Input.is_action_just_pressed("move_down"):
+	if Input.is_action_pressed("move_down"):
 		expected_input = down
-	if Input.is_action_just_pressed("move_left"):
+	if Input.is_action_pressed("move_left"):
 		expected_input = left
-	if Input.is_action_just_pressed("move_right"):
+	if Input.is_action_pressed("move_right"):
 		expected_input = right
 	if expected_input != null:
 		_input = expected_input
