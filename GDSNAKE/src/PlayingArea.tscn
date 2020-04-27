@@ -48,6 +48,8 @@ tile_set = SubResource( 1 )
 cell_size = Vector2( 8, 8 )
 format = 1
 
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="Snake"]
+
 [node name="GameOverText" type="RichTextLabel" parent="."]
 visible = false
 margin_left = 79.9715

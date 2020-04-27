@@ -7,6 +7,7 @@ enum { head = 0, body = 4, curves = 8, tail = 12}
 
 onready var _walls :TileMap = $Walls
 onready var _fruit :TileMap = $Fruit
+onready var _sound :AudioStreamPlayer = $AudioStreamPlayer
 
 # Public
 
@@ -16,6 +17,7 @@ export var max_length := 256
 export var start_length := 3
 export var start_pos := Vector2(10, 15)
 export var start_dir := right
+
 
 # Fruit
 const FRUIT_START_POS := Vector2(12, 12)
@@ -30,6 +32,11 @@ var _previous_input := start_dir
 var _tick_time := 0.0
 var _length := 3
 
+
+class SnakeTile:
+	var pos := Vector2()
+	var dir := 0
+
 var _snake_tiles := []
 
 
@@ -40,6 +47,7 @@ var _snake_tiles := []
 
 
 func _ready() -> void:
+	_sound.stream = load("res://assets/untitled.wav")
 	global.connect("game_start", self, "_on_game_start")
 	set_process(false)
 
@@ -147,14 +155,21 @@ func _process(delta: float) -> void:
 			var cell_index = body + body_tile.dir
 			
 			# Curves
+			var sound = false
 			if _check_curve(body_tile, body_tile_up, up, right, left, down):
 				cell_index = curves + 0
+				sound = true
 			if _check_curve(body_tile, body_tile_up, right, down, up, left):
 				cell_index = curves + 1
+				sound = true
 			if _check_curve(body_tile, body_tile_up, down, right, left, up):
 				cell_index = curves + 2
+				sound = true
 			if _check_curve(body_tile, body_tile_up, right, up, down, left):
 				cell_index = curves + 3
+				sound = true
+			if sound:
+				_sound.play()
 			
 			set_cell(body_tile.pos.x, body_tile.pos.y, cell_index)
 		
