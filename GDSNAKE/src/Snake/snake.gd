@@ -155,21 +155,19 @@ func _process(delta: float) -> void:
 			var cell_index = body + body_tile.dir
 			
 			# Curves
-			var sound = false
 			if _check_curve(body_tile, body_tile_up, up, right, left, down):
 				cell_index = curves + 0
-				sound = true
+				_sound.play()
 			if _check_curve(body_tile, body_tile_up, right, down, up, left):
 				cell_index = curves + 1
-				sound = true
+				_sound.play()
 			if _check_curve(body_tile, body_tile_up, down, right, left, up):
 				cell_index = curves + 2
-				sound = true
+				_sound.play()
 			if _check_curve(body_tile, body_tile_up, right, up, down, left):
 				cell_index = curves + 3
-				sound = true
-			if sound:
 				_sound.play()
+
 			
 			set_cell(body_tile.pos.x, body_tile.pos.y, cell_index)
 		
